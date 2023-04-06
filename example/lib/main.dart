@@ -1,3 +1,4 @@
+import 'package:example/views/app_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -11,10 +12,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        useMaterial3: true,
         primarySwatch: Colors.blue,
       ),
-      home: const Scaffold(body: Text('Hello OSIP')),
+      home: const AppPage(),
     );
   }
 }

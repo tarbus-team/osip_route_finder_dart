@@ -12,6 +12,15 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.2
+  equatable: ^2.0.5
+  flutter_lints: ^2.0.0
+  path_provider: ^2.0.11
+  latlong2: ^0.8.1
+  flutter_map: ^3.1.0
+  flutter_map_dragmarker: ^4.1.2
+  flutter_map_marker_cluster: ^1.0.1
+  flutter_map_marker_popup: ^4.0.0
+  flutter_bloc: ^8.1.1
   
   osip_route_finder_dart: 
     path: ../
@@ -19,8 +28,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  flutter_lints: ^2.0.0
-
+  
 flutter:
+  assets:
+    - assets/
   uses-material-design: true
