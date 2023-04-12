@@ -5,9 +5,11 @@ import 'package:latlong2/latlong.dart';
 
 class GraphMap extends StatelessWidget {
   final List<Marker> markers;
+  final List<Polyline> polylines;
 
   const GraphMap({
     required this.markers,
+    required this.polylines,
     super.key,
   });
 
@@ -22,6 +24,9 @@ class GraphMap extends StatelessWidget {
         TileLayer(
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           userAgentPackageName: 'com.example.app',
+        ),
+        PolylineLayer(
+          polylines: polylines,
         ),
         // CustomPolylineLayer(mapPolylinesCubit: mapCubit.mapPolylinesCubit),
         CustomMarkerLayer(markers: markers),

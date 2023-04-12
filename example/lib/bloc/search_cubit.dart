@@ -15,7 +15,7 @@ class SearchCubit extends Cubit<SearchState> {
   final GraphService graphService = GraphService();
   
   SearchCubit() : super(SearchState(
-    dateTime: DateTime(1, 1, 2023, 6, 0),
+    dateTime: DateTime(2023, 1, 1, 6, 0),
   ));
   
   Future<void> init() async {
@@ -61,8 +61,6 @@ class SearchCubit extends Cubit<SearchState> {
       dateTime: state.dateTime,
     );
     AStarSearchResult aStarSearchResult = await aStarSearchAlgorithm.process(state.multiGraph!, searchRequest);
-    print('AStarSearchResult: $aStarSearchResult');
-    
-    emit(SearchResultState.fromSearchState(state));
+    emit(SearchResultState.fromSearchState(state, aStarSearchResult));
   }
 }

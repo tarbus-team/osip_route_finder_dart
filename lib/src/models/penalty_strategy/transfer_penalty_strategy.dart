@@ -13,8 +13,8 @@ class TransferPenaltyStrategy implements PenaltyStrategy {
   double calcPenalty(SearchState searchState, TransitEdge transitEdge) {
     double penalty = 0;
 
-    if(searchState.previousEdge is VehicleEdge && transitEdge is VehicleEdge) {
-      VehicleEdge previousVehicleEdge = searchState.previousEdge as VehicleEdge;
+    if(searchState.edge is VehicleEdge && transitEdge is VehicleEdge) {
+      VehicleEdge previousVehicleEdge = searchState.edge as VehicleEdge;
       VehicleEdge currentVehicleEdge = transitEdge;
       penalty = previousVehicleEdge.trackId != currentVehicleEdge.trackId ? guaranteedPenalty : 0;
     }

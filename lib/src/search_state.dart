@@ -1,48 +1,44 @@
 import 'package:equatable/equatable.dart';
 import 'package:osip_route_finder_dart/osip_route_finder_dart.dart';
-import 'package:osip_route_finder_dart/src/models/edge/transit_edge.dart';
-import 'package:osip_route_finder_dart/src/models/node/transit_node.dart';
 import 'package:osip_route_finder_dart/src/models/penalty_strategy/penalty_strategy.dart';
 
 class SearchState extends Equatable {
-  // the current time at this state, in seconds since UNIX epoch
-  final int time;
+  final int currentTimeInMin;
+  final int stepWaitingTime;
+  final double currentWeight;
+  final Duration stepDuration;
   final SearchRequest searchRequest;
-
-  // accumulated weight up to this state
-  final double weight;
-
-  // associate this state with a vertex in the graph
   final TransitNode node;
-  
-  final TransitEdge? previousEdge;
-
-  // allow path reconstruction from states
+  final TransitEdge? edge;
   final SearchState? backState;
-  
+
+  const SearchState._({
+    required this.currentTimeInMin,
+    required this.stepWaitingTime,
+    required this.stepDuration,
+    required this.searchRequest,
+    required this.currentWeight,
+    required this.node,
+    required this.edge,
+    this.backState,
+  });
+
   factory SearchState.initial({
     required TransitNode node,
     required SearchRequest searchRequest,
   }) {
-    
+
     return SearchState._(
-      time: searchRequest.startTimeMin,
+      currentTimeInMin: searchRequest.startTimeMin,
+      stepWaitingTime: 0,
+      stepDuration: const Duration(minutes: 0),
       searchRequest: searchRequest,
-      weight: 0,
+      currentWeight: 0,
       node: node,
       backState: null,
-      previousEdge: null,
+      edge: null,
     );
   }
-
-  const SearchState._({
-    required this.time,
-    required this.searchRequest,
-    required this.weight,
-    required this.node,
-    required this.previousEdge,
-    this.backState,
-  });
   
   SearchState nextState({
     required TransitEdge edge,
@@ -51,33 +47,50 @@ class SearchState extends Equatable {
     final double penalty = penaltyStrategies.fold(0, (double prev, PenaltyStrategy strategy) => prev + strategy.calcPenalty(this, edge));
     final Duration totalDuration = edge.getTotalDuration(this);
     
-    final int nextTime = time + totalDuration.inMinutes;
-    final double nextWeight = weight + totalDuration.inMinutes + penalty;
+    final int nextTime = currentTimeInMin + totalDuration.inMinutes;
+    final double nextWeight = currentWeight + totalDuration.inMinutes + penalty;
+    
+    int waitingTime = 0;
+    if( edge is VehicleEdge ) {
+      waitingTime = edge.departureTimeInMin - currentTimeInMin;
+    }
     
     
     return SearchState._(
-      time: nextTime,
+      currentTimeInMin: nextTime,
+      stepWaitingTime: waitingTime,
+      stepDuration: totalDuration,
       searchRequest: searchRequest,
-      weight: nextWeight,
+      currentWeight: nextWeight,
       node: edge.to,
-      previousEdge: edge,
+      edge: edge,
       backState: this,
     );
   }
   
-  List<String> get path {
-    return [previousEdge.toString(), ...backState?.path ?? []];
+  
+  DateTime get arrivalTime {
+    return searchRequest.dateTime.copyWith(hour: currentTimeInMin ~/ 60, minute: currentTimeInMin % 60);
   }
   
-  @override
-  String toString() {
-    if( previousEdge is WalkEdge ) {
-      return 'WALK $time, $weight, ${previousEdge?.from.name} -> ${previousEdge?.to.name}';
+  DateTime get departureTime {
+    int departureTimeMin = edge?.getDepartureTimeInMin(this) ?? -1;
+    if( departureTimeMin == -1 ) {
+      return arrivalTime;
     } else {
-      return 'BUS  $time, $weight, ${previousEdge?.from.name} -> ${previousEdge?.to.name}';
+      return searchRequest.dateTime.copyWith(hour: departureTimeMin ~/ 60, minute: departureTimeMin % 60);
     }
   }
+
+  DateTime get endTime {
+    int tripTimeInMin = edge?.getTripTimeInMin(this) ?? 0;
+    return departureTime.add(Duration(minutes: tripTimeInMin));
+  }
+  
+  List<String> get path {
+    return [edge.toString(), ...backState?.path ?? []];
+  }
   
   @override
-  List<Object?> get props => [time, searchRequest, weight, node, previousEdge, backState];
+  List<Object?> get props => [currentTimeInMin, searchRequest, currentWeight, node, edge, backState];
 }

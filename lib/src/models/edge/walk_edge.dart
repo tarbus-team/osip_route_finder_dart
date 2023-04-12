@@ -11,16 +11,21 @@ class WalkEdge extends TransitEdge {
     required TransitNode to,
     required this.distanceInMeters,
     required this.polylines,
-  }) : super(from: from, to: to);
+  }) : super(from: from, to: to, path: polylines);
 
   @override
   Duration getTotalDuration(SearchState searchState) {
-    return Duration(seconds: distanceInMeters ~/ searchState.searchRequest.walkingSpeed);
+    return Duration( minutes: getTripTimeInMin(searchState));
   }
 
   @override
   int getDepartureTimeInMin(SearchState searchState) {
-    return searchState.time;
+    return searchState.currentTimeInMin;
+  }
+
+  @override
+  int getTripTimeInMin(SearchState searchState) {
+    return distanceInMeters ~/ searchState.searchRequest.walkingSpeed;
   }
 
   @override

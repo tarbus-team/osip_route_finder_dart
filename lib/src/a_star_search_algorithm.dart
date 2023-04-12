@@ -71,7 +71,7 @@ class _AStarSearchEngine {
 
         SearchState nextState = currentState.nextState(edge: transitEdge, penaltyStrategies: penaltyStrategies);
         double previousWeight = weightTable[nextState.node] ?? double.infinity;
-        double currentWeight = nextState.weight + heuristic.calc(currentState.node, to);
+        double currentWeight = nextState.currentWeight + heuristic.calc(currentState.node, to);
 
         bool firstNeighborVisit = weightTable.containsKey(nextState.node) == false;
         bool hasBetterCost = currentWeight < previousWeight;
